@@ -1,0 +1,130 @@
+UPDATE 48
+---------------+-------
+             3 |    21
+             4 |     6
+             6 |     4
+             7 |     4
+             8 |     4
+             9 |     1
+            10 |     4
+            11 |     1
+            22 |     3
+(9 rows)
+
+              nomdpto               |            nomasig            
+------------------------------------+-------------------------------
+ Departamento de Sociales           | Introduccion al Arte
+ Departamento de Sociales           | Historia del Arte
+ Departamento de Sociales           | Analisis de la Pintura
+ Departamento de Sociales           | El Modernismo
+ Departamento de Computacion        | Introduccion a la Computacion
+ Departamento de Computacion        | Computacion I
+ Departamento de Electronica        | Redes II
+ Departamento de Matematicas        | Matematicas I
+ Departamento de Matematicas        | Matematicas II
+ Departamento de Matematicas        | Matematicas III
+ Departamento de Fisica             | Fisica I
+ Departamento de Fisica             | Fisica II
+ Departamento de Fisica             | Fisica III
+ Departamento de Fisica             | Laboratorio Fisica I
+ Departamento de Fisica             | Laboratorio Fisica II
+ Departamento de Estudios Generales | Educacion Fisica
+ Departamento de Estudios Generales | Apreciacion Musical
+ Departamento de Idiomas            | Ingles I
+ Departamento de Idiomas            | Ingles II
+ Departamento de Idiomas            | Ingles III
+(20 rows)
+
+ carnet  | anio | trimestre  | creditos | horas 
+---------+------+------------+----------+-------
+ 1011111 | 2015 | ENERO      |        8 |    10
+ 1012345 | 2015 | ENERO      |        7 |    11
+ 1022222 | 2015 | ENERO      |        6 |     7
+ 1023456 | 2014 | ABRIL      |       11 |    15
+ 1023456 | 2014 | ENERO      |        7 |     9
+ 1023456 | 2014 | SEPTIEMBRE |       11 |    15
+ 1023456 | 2015 | ENERO      |        4 |     6
+ 1077777 | 2014 | ABRIL      |       11 |    15
+ 1077777 | 2014 | ENERO      |        7 |     9
+ 1077777 | 2014 | SEPTIEMBRE |        7 |     9
+ 1077777 | 2015 | ENERO      |        4 |     6
+ 1078901 | 2015 | ENERO      |        6 |     6
+ 1088888 | 2015 | ENERO      |        8 |    10
+ 1089012 | 2015 | ENERO      |        7 |    10
+(14 rows)
+
+anio | trimestre  |         nombre          | nombres  | apellidos | carnet  | horas 
+------+------------+-------------------------+----------+-----------+---------+-------
+ 2013 | SEPTIEMBRE | Ing. Electronica        | Rafael   | Millan    | 9777777 |     5
+ 2013 | SEPTIEMBRE | Ing. Materiales         | Gustavo  | Salazar   | 9788888 |     5
+ 2013 | SEPTIEMBRE | Ing. Produccion         | Elvira   | Salinas   | 9789012 |     5
+ 2013 | SEPTIEMBRE | Ing. Mantenimiento      | Gabriela | Saad      | 9899999 |     5
+ 2013 | SEPTIEMBRE | Ing. Electrica          | Carmen   | Lopez     | 9890123 |     5
+ 2014 | ABRIL      | Ing. Telecomunicaciones | Domingo  | Pineda    | 1023456 |    15
+ 2014 | ABRIL      | Ing. Geofisica          | Carmen   | Tovar     | 1190123 |    15
+ 2014 | ABRIL      | Ing. Quimica            | Luisa    | Garcia    | 1077777 |    15
+ 2014 | ENERO      | Ing. Quimica            | Luisa    | Garcia    | 1077777 |     9
+ 2014 | ENERO      | Ing. Geofisica          | Carmen   | Tovar     | 1190123 |     9
+ 2014 | ENERO      | Ing. Telecomunicaciones | Domingo  | Pineda    | 1023456 |     9
+ 2014 | SEPTIEMBRE | Ing. Telecomunicaciones | Domingo  | Pineda    | 1023456 |    15
+ 2014 | SEPTIEMBRE | Ing. Geofisica          | Carmen   | Tovar     | 1190123 |    15
+ 2015 | ABRIL      | Ing. Mantenimiento      | Gabriela | Saad      | 9899999 |     6
+ 2015 | ABRIL      | Ing. Electrica          | Jose     | Valencia  | 1333444 |     6
+ 2015 | ABRIL      | Ing. Produccion         | Ramon    | Barreto   | 1356789 |     6
+ 2015 | ABRIL      | Ing. Electrica          | Carmen   | Lopez     | 9890123 |     6
+ 2015 | ENERO      | Ing. Materiales         | Ignacio  | Quintero  | 1245678 |    12
+ 2015 | ENERO      | Ing. Electrica          | Oscar    | Caraballo | 1355555 |    12
+ 2015 | ENERO      | Ing. Produccion         | Enrique  | Cruz      | 1388999 |    12
+(20 rows)
+
+
+NOTICE:  type reference asignatura.codasig%TYPE converted to character
+CREATE FUNCTION
+ mm0003 | fi0003 | mm0001 
+--------+--------+--------
+      5 |      7 |      7
+(1 row)
+
+ carnet  | creditosaprob 
+---------+---------------
+ 9711111 |             3
+ 9712345 |             6
+ 9722222 |             6
+ 9723456 |             9
+ 9777777 |            10
+ 9778901 |             3
+ 9788888 |            10
+ 9789012 |             3
+ 9833333 |             6
+ 9834567 |             3
+ 9890123 |            11
+ 9899999 |            10
+ 9901236 |             3
+ 9911122 |             3
+ 9944444 |             3
+ 9945678 |             3
+(16 rows)
+UPDATE 7
+ carnet  | creditosaprob 
+---------+---------------
+ 9711111 |             3
+ 9712345 |             6
+ 9722222 |             6
+ 9723456 |             9
+ 9777777 |            17
+ 9778901 |             6
+ 9788888 |            13
+ 9789012 |             6
+ 9833333 |             6
+ 9834567 |             3
+ 9890123 |            11
+ 9899999 |            16
+ 9901236 |             3
+ 9911122 |             3
+ 9944444 |             3
+ 9945678 |             3
+(16 rows) 
+
+
+
+	

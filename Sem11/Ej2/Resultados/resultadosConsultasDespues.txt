@@ -1,0 +1,45 @@
+-- Resultados de consultas.sql si se ejecuta después de operaciones.sql
+
+      nombre      
+------------------
+ Ing. Computacion
+(1 row)
+
+ apellidos | nombres  
+-----------+----------
+ Gomez     | Luis
+ Perez     | Jose
+ Rivas     | Irene
+ Sanchez   | Marta
+ Salazar   | Gustavo
+ Saad      | Gabriela
+ Ponce     | Camilo
+ Pino      | David
+ Rovas     | Ignacio
+ Diaz      | Ramon
+ Vidal     | Marina
+ Salinas   | Elvira
+ Alfonso   | Irma
+ Beltran   | Alberto
+(14 rows)
+
+ carnet  | apellidos | nombres  |  fechanac  | indice | creditosaprob | idcarrera | fechingreso 
+---------+-----------+----------+------------+--------+---------------+-----------+-------------
+ 9899999 | Saad      | Gabriela | 1992-05-05 |   4.36 |            79 |         9 | 2009-09-01
+ 9911122 | Cortes    | Santiago | 1992-07-01 |   3.66 |            85 |         9 | 2009-09-01
+ 0022333 | Sanchez   | Andres   | 1994-10-18 |   3.92 |            82 |        10 | 2011-09-01
+ 0056789 | Diaz      | Ramon    | 1994-03-22 |   4.55 |            69 |         8 | 2011-09-01
+ 0067890 | Vidal     | Marina   | 1994-10-25 |   4.10 |            80 |        10 | 2011-09-01
+ 9890123 | Lopez     | Carmen   | 1992-05-01 |   3.01 |            78 |         9 | 2009-09-01
+ 9901236 | Alfonso   | Irma     | 1992-08-15 |   4.75 |            96 |         9 | 2009-09-01
+ 0077889 | Beltran   | Alberto  | 1994-09-21 |   4.17 |            72 |        10 | 2011-09-01
+(8 rows)
+
+ carnet | apellidos | nombres | fechanac | indice | creditosaprob | idcarrera | fechingreso 
+--------+-----------+---------+----------+--------+---------------+-----------+-------------
+(0 rows)
+
+ carnet | apellidos | nombres | fechanac | indice | creditosaprob | idcarrera | fechingreso 
+--------+-----------+---------+----------+--------+---------------+-----------+-------------
+(0 rows)
+

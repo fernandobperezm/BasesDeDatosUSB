@@ -1,0 +1,259 @@
+###########################
+###########	SOLUCION EJ1
+#####################
+
+A. Mediante una operación de SQL se quiere volver a calcular y almacenar el valor correcto del índice académico de los estudiantes. Sólo
+se consideran cursos con estado ‘APROBADO’ o ‘REPROBADO’. Para mostrar que se hizo bien la operación, luego de la misma ejecute
+la consulta: SELECT 'despues' AS momento, carnet, indice FROM ESTUDIANTE;
+
+UPDATE ESTUDIANTE e
+SET indice = (
+			SELECT SUM(a.creditos*c.nota)/SUM(a.creditos)
+			FROM ASIGNATURA a, CURSA c
+			WHERE 
+				c.carnet = e.carnet AND 
+				a.codasig = c.codasig AND 
+				(c.estado = 'APROBADO' OR 
+					c.estado = 'REPROBADO')
+);
+
+ momento | carnet  | indice 
+---------+---------+--------
+ despues | 9711111 |   1.80
+ despues | 9722222 |   3.20
+ despues | 9833333 |   3.25
+ despues | 9944444 |   3.00
+ despues | 0055555 |   5.00
+ despues | 0066666 |   2.00
+ despues | 9777777 |   1.96
+ despues | 9788888 |   2.87
+ despues | 9899999 |   3.80
+ despues | 9911122 |   1.00
+ despues | 0022333 |   3.00
+ despues | 0033444 |   5.00
+ despues | 9712345 |   2.13
+ despues | 9723456 |   2.86
+ despues | 9834567 |   2.00
+ despues | 9945678 |   1.00
+ despues | 0056789 |   2.50
+ despues | 0067890 |   3.50
+ despues | 9778901 |   2.14
+ despues | 9789012 |   3.21
+ despues | 9890123 |   1.83
+ despues | 9901236 |   2.50
+ despues | 0077889 |   2.00
+ despues | 0088999 |   3.00
+(24 rows)
+
+
+
+B. Para todos los estudiantes que hayan aprobado todas las asignaturas de su carrera, dar el carnet, apellido, nombre, índice académico,
+código y nombre de la carrera.
+
+SELECT 
+	e.carnet, e.apellidos, e.nombres, e.indice, c.idcarrera, c.nombre
+FROM 
+	ESTUDIANTE E, CARRERA c
+WHERE 
+	e.idcarrera = c.idcarrera AND 
+	NOT EXISTS(
+		SELECT * 
+		FROM PERTENECE p
+		WHERE 
+			p.idcarrera = e.idcarrera AND
+			NOT EXISTS(
+				SELECT *
+				FROM CURSA k
+				WHERE
+					p.codasig = k.codasig AND 
+					k.carnet = e.carnet AND 
+					k.estado = 'APROBADO'
+			)
+	)
+;
+
+ carnet | apellidos | nombres | indice | idcarrera | nombre 
+--------+-----------+---------+--------+-----------+--------
+(0 rows)
+
+
+
+C. Cree una vista que, para cada asignatura, calcule la cantidad de reprobados en el trimestre enero-marzo 2011. Los atributos de la vista
+serían simplemente el código y el número de reprobados. Para mostrar que se hizo bien la operación, luego de la misma ejecute la
+consulta: SELECT * FROM REPROBADOS;
+
+CREATE OR REPLACE VIEW REPROBADOS(codasig,reprobados) AS
+	SELECT c.codasig, COUNT(c.carnet)
+	FROM CURSA c
+	WHERE 
+		c.trimestre = 'ENERO' AND 
+		c.anio = '2011' AND 
+		c.estado = 'REPROBADO' 
+	GROUP BY 
+		c.codasig
+;
+
+ codasig | reprobados 
+---------+------------
+ MM0002  |          6
+ AA0002  |          5
+ AA0003  |          4
+ AA0001  |          5
+ MM0003  |          3
+ MM0001  |          6
+ MM0004  |          4
+ AA0004  |          6
+(8 rows)
+
+D. Haciendo uso de la vista del ejercicio anterior, liste las asignaturas que tienen el mayor número de estudiantes reprobados en ese
+trimestre. Incluya, además de los atributos de la vista, el nombre de la asignatura y del departamento a que corresponde ésta.
+
+SELECT r.codasig, r.reprobados, a.nomasig, d.nomdpto
+FROM REPROBADOS r, ASIGNATURA a, DEPARTAMENTO d
+WHERE 
+	r.codasig = a.codasig AND 
+	d.iddepartamento = a.iddepartamento AND
+	r.reprobados  = (
+		SELECT MAX(reprobados)
+		FROM REPROBADOS
+	)
+;
+
+ codasig | reprobados |            nomasig            |           nomdpto           
+---------+------------+-------------------------------+-----------------------------
+ AA0004  |          6 | El Modernismo                 | Departamento de Sociales
+ MM0001  |          6 | Introduccion a la Computacion | Departamento de Computacion
+ MM0002  |          6 | Computacion I                 | Departamento de Computacion
+(3 rows)
+
+
+
+
+E. Implemente la función maxAprobados que recibe un trimestre (año y mes inicial) y retorna el número máximo de aprobados de entre
+todas las asignaturas de ese trimestre. La función no puede hacer uso de vistas ni consultas anidadas. Para mostrar que se hizo bien la
+operación, luego de la misma ejecute la consulta: SELECT maxAprobados('ENERO',2011), maxAprobados('ABRIL',2011),
+maxAprobados('SEPTIEMBE',2011);
+
+CREATE OR REPLACE FUNCTION maxAprobados(
+	pf_trim    SECCION.trimestre%TYPE,	
+	pf_anio    SECCION.anio%TYPE
+) RETURNS NUMERIC AS $$
+DECLARE
+	aprobados CURSOR (
+		pc_trim	   SECCION.trimestre%TYPE,
+		pc_anio    SECCION.anio%TYPE
+	) IS (
+		SELECT COUNT(*) as cantidad
+		FROM CURSA c
+		WHERE 
+			pc_trim = c.trimestre AND
+			pc_anio = c.anio AND
+			c.estado = 'APROBADO'
+		GROUP BY 
+			c.codasig
+	);
+	num_max NUMERIC := 0;
+BEGIN
+	FOR elemento IN aprobados(pf_trim, pf_anio) LOOP
+		IF (num_max < elemento.cantidad) THEN
+			num_max := elemento.cantidad;
+		END IF;
+	END LOOP;
+	RETURN num_max;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT maxAprobados('ENERO',2011);
+ maxaprobados 
+--------------
+            3
+(1 row)
+
+SELECT maxAprobados('ABRIL',2011);
+ maxaprobados 
+--------------
+            2
+(1 row)
+
+SELECT maxAprobados('SEPTIEMBRE','2011');
+ maxaprobados 
+--------------
+            2
+(1 row)
+
+
+F. Implemente esta regla: ‘Cuando un estudiante aprueba una asignatura, si la 
+tenía reprobada, queda sin efecto la nota del trimestre más reciente en que la 
+reprobó’. El estado debe cambiar de ‘REPROBADO’ a ‘SIN EFECTO’. Para probar esta
+regla, actualice el estado de materias cursadas en el trimestre 
+enero-marzo 2012, mediante la operación: 
+	SET estado = 'APROBADO' WHERE trimestre = 'ENERO' AND anio = '2012' AND nota >= 3; 
+Para mostrar que se hizo bien la operación, luego de la misma ejecute la consulta:
+	SELECT * FROM CURSA WHERE estado = 'SIN EFECTO';
+
+CREATE OR REPLACE FUNCTION numeroTrim(
+	pf_trim SECCION.trimestre%TYPE
+) RETURNS NUMERIC AS $$
+BEGIN
+	IF (pf_trim = 'ENERO') THEN
+		RETURN 1;
+	ELSIF (pf_trim = 'ABRIL') THEN
+		RETURN 2;
+	ELSIF (pf_trim = 'JULIO') THEN
+		RETURN 3;
+	ELSIF (pf_trim = 'SEPTIEMBRE') THEN
+		RETURN 4;
+	END IF;
+END;
+$$ LANGUAGE plpgsql;	
+
+CREATE OR REPLACE FUNCTION notaSinEFecto(
+) RETURNS trigger AS $notaSinEfecto$
+BEGIN
+	UPDATE CURSA c1
+	SET estado = 'SIN EFECTO' 
+	WHERE
+		c1.carnet = NEW.carnet AND
+		c1.codasig = NEW.codasig AND
+		c1.estado = 'REPROBADO' AND
+		NOT EXISTS(
+			SELECT *
+			FROM CURSA c2
+			WHERE 
+				c2.carnet = NEW.carnet AND
+				c2.codasig = NEW.codasig AND
+				c2.estado = 'REPROBADO' AND (
+					c2.anio > c1.anio OR (
+						c2.anio = c1.anio AND
+						numeroTrim(c2.trimestre) > numeroTrim(c1.trimestre)  
+					)
+				)	
+		);
+	RETURN NEW;
+END;
+$notaSinEfecto$ LANGUAGE plpgsql;
+
+CREATE TRIGGER notaSinEfecto
+AFTER INSERT OR UPDATE OF estado ON CURSA
+FOR EACH ROW
+WHEN (NEW.estado = 'APROBADO')
+EXECUTE PROCEDURE notaSinEfecto();
+
+
+ carnet  | codasig | trimestre  | anio | nroseccion |   estado   | causa | nota 
+---------+---------+------------+------+------------+------------+-------+------
+ 0066666 | AA0001  | ENERO      | 2011 |          1 | SIN EFECTO |       |    2
+ 9945678 | AA0001  | SEPTIEMBRE | 2011 |          2 | SIN EFECTO |       |    1
+ 9711111 | AA0002  | ABRIL      | 2011 |          1 | SIN EFECTO |       |    2
+ 9712345 | AA0003  | SEPTIEMBRE | 2011 |          1 | SIN EFECTO |       |    2
+ 9711111 | AA0004  | ABRIL      | 2011 |          1 | SIN EFECTO |       |    2
+ 9833333 | AA0004  | SEPTIEMBRE | 2011 |          1 | SIN EFECTO |       |    2
+ 0077889 | MM0001  | ABRIL      | 2011 |          2 | SIN EFECTO |       |    2
+ 9777777 | MM0001  | SEPTIEMBRE | 2011 |          1 | SIN EFECTO |       |    1
+ 9899999 | MM0002  | ENERO      | 2011 |          1 | SIN EFECTO |       |    2
+ 9890123 | MM0003  | SEPTIEMBRE | 2011 |          1 | SIN EFECTO |       |    2
+ 9789012 | MM0004  | ENERO      | 2011 |          1 | SIN EFECTO |       |    2
+ 9890123 | MM0004  | SEPTIEMBRE | 2011 |          1 | SIN EFECTO |       |    1
+(12 rows)
+
+

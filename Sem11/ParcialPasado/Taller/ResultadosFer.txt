@@ -1,0 +1,267 @@
+SOLUCION SEGUNDO EXAMEN (TALLER 2)
+
+
+/*
+ * PREGUNTA 1.
+ *
+ *
+ *
+ *
+ */
+UPDATE ESTUDIANTE e
+SET creditosaprob = (
+	SELECT SUM(a.creditos)
+	FROM CURSA c, ASIGNATURA a
+	WHERE 
+		e.carnet = carnet AND
+		c.codasig = a.codasig AND 
+		nota >= 3
+	)	
+;
+
+SELECT creditosaprob, COUNT(*)
+FROM estudiante
+GROUP BY creditosaprob
+ORDER BY creditosaprob
+;
+ creditosaprob | count 
+---------------+-------
+             3 |    21
+             4 |     6
+             6 |     4
+             7 |     4
+             8 |     4
+             9 |     1
+            10 |     4
+            11 |     1
+            22 |     3
+(9 rows)
+
+
+
+
+/*
+ * PREGUNTA 2.
+ *
+ *
+ *
+ *
+ */
+ 
+SELECT d.nomdpto, a.nomasig
+FROM DEPARTAMENTO d, ASIGNATURA a
+WHERE 
+	d.iddepartamento = a.iddepartamento AND 
+	EXISTS(
+		SELECT *
+		FROM PROFESOR p
+		WHERE 
+			p.iddepartamento = d.iddepartamento AND
+			NOT EXISTS(
+				SELECT *
+				FROM DICTA dc
+				WHERE dc.ciprof = p.ciprof AND a.codasig = dc.codasig
+			)
+	)
+;
+
+              nomdpto               |            nomasig            
+------------------------------------+-------------------------------
+ Departamento de Sociales           | Introduccion al Arte
+ Departamento de Sociales           | Historia del Arte
+ Departamento de Sociales           | Analisis de la Pintura
+ Departamento de Sociales           | El Modernismo
+ Departamento de Computacion        | Introduccion a la Computacion
+ Departamento de Computacion        | Computacion I
+ Departamento de Electronica        | Redes II
+ Departamento de Matematicas        | Matematicas I
+ Departamento de Matematicas        | Matematicas II
+ Departamento de Matematicas        | Matematicas III
+ Departamento de Fisica             | Fisica I
+ Departamento de Fisica             | Fisica II
+ Departamento de Fisica             | Fisica III
+ Departamento de Fisica             | Laboratorio Fisica I
+ Departamento de Fisica             | Laboratorio Fisica II
+ Departamento de Estudios Generales | Educacion Fisica
+ Departamento de Estudios Generales | Apreciacion Musical
+ Departamento de Idiomas            | Ingles I
+ Departamento de Idiomas            | Ingles II
+ Departamento de Idiomas            | Ingles III
+(20 rows)
+
+
+
+/*
+ * PREGUNTA 3.
+ *
+ *
+ *
+ *
+ */
+
+CREATE OR REPLACE VIEW 
+datos_inscripcion AS (
+	SELECT 
+		e.carnet, c.anio, c.trimestre, 
+		SUM(a.creditos) AS creditos, 
+		SUM(a.horassem) AS horassem
+	FROM 
+		CURSA c, ASIGNATURA a, ESTUDIANTE e
+	WHERE 
+		e.carnet = c.carnet AND
+		c.codasig = a.codasig AND 
+		c.estado NOT IN ('RECHAZADO','RETIRADO')
+	GROUP BY
+		e.carnet, c.anio, c.trimestre
+	)
+;
+
+SELECT * FROM datos_inscripcion WHERE carnet LIKE '10%';
+ carnet  | anio | trimestre  | creditos | horassem 
+---------+------+------------+----------+----------
+ 1012345 | 2015 | ENERO      |        7 |       11
+ 1078901 | 2015 | ENERO      |        6 |        6
+ 1077777 | 2015 | ENERO      |        4 |        6
+ 1023456 | 2015 | ENERO      |        4 |        6
+ 1022222 | 2015 | ENERO      |        6 |        7
+ 1011111 | 2015 | ENERO      |        8 |       10
+ 1077777 | 2014 | ABRIL      |       11 |       15
+ 1023456 | 2014 | ABRIL      |       11 |       15
+ 1077777 | 2014 | SEPTIEMBRE |        7 |        9
+ 1023456 | 2014 | SEPTIEMBRE |       11 |       15
+ 1088888 | 2015 | ENERO      |        8 |       10
+ 1077777 | 2014 | ENERO      |        7 |        9
+ 1023456 | 2014 | ENERO      |        7 |        9
+ 1089012 | 2015 | ENERO      |        7 |       10
+(14 rows)
+
+/*
+ * PREGUNTA 4
+ *
+ *
+ *
+ *
+ *
+ */
+ 
+ SELECT 
+ 	d.anio, d.trimestre, c.nombre AS carrera, e.nombres, e.apellidos, d.carnet, d.horassem
+ FROM 
+ 	datos_inscripcion d, CARRERA c, ESTUDIANTE e
+ WHERE 
+ 	d.carnet = e.carnet AND 
+ 	c.idcarrera = e.idcarrera AND 
+ 	(d.anio,d.trimestre,d.horassem) IN (
+ 		SELECT
+ 			dmax.anio, dmax.trimestre, MAX(dmax.horassem)
+ 		FROM
+ 			datos_inscripcion dmax
+ 		GROUP BY
+ 			dmax.anio, dmax.trimestre
+ 		)
+ ORDER BY d.anio, d.trimestre
+ ;
+ 
+ anio | trimestre  |         carrera         | nombres  | apellidos | carnet  | horassem 
+------+------------+-------------------------+----------+-----------+---------+----------
+ 2013 | SEPTIEMBRE | Ing. Materiales         | Gustavo  | Salazar   | 9788888 |        5
+ 2013 | SEPTIEMBRE | Ing. Electrica          | Carmen   | Lopez     | 9890123 |        5
+ 2013 | SEPTIEMBRE | Ing. Produccion         | Elvira   | Salinas   | 9789012 |        5
+ 2013 | SEPTIEMBRE | Ing. Mantenimiento      | Gabriela | Saad      | 9899999 |        5
+ 2013 | SEPTIEMBRE | Ing. Electronica        | Rafael   | Millan    | 9777777 |        5
+ 2014 | ABRIL      | Ing. Telecomunicaciones | Domingo  | Pineda    | 1023456 |       15
+ 2014 | ABRIL      | Ing. Quimica            | Luisa    | Garcia    | 1077777 |       15
+ 2014 | ABRIL      | Ing. Geofisica          | Carmen   | Tovar     | 1190123 |       15
+ 2014 | ENERO      | Ing. Geofisica          | Carmen   | Tovar     | 1190123 |        9
+ 2014 | ENERO      | Ing. Telecomunicaciones | Domingo  | Pineda    | 1023456 |        9
+ 2014 | ENERO      | Ing. Quimica            | Luisa    | Garcia    | 1077777 |        9
+ 2014 | SEPTIEMBRE | Ing. Geofisica          | Carmen   | Tovar     | 1190123 |       15
+ 2014 | SEPTIEMBRE | Ing. Telecomunicaciones | Domingo  | Pineda    | 1023456 |       15
+ 2015 | ABRIL      | Ing. Produccion         | Ramon    | Barreto   | 1356789 |        6
+ 2015 | ABRIL      | Ing. Electrica          | Jose     | Valencia  | 1333444 |        6
+ 2015 | ABRIL      | Ing. Electrica          | Carmen   | Lopez     | 9890123 |        6
+ 2015 | ABRIL      | Ing. Mantenimiento      | Gabriela | Saad      | 9899999 |        6
+ 2015 | ENERO      | Ing. Materiales         | Ignacio  | Quintero  | 1245678 |       12
+ 2015 | ENERO      | Ing. Produccion         | Enrique  | Cruz      | 1388999 |       12
+ 2015 | ENERO      | Ing. Electrica          | Oscar    | Caraballo | 1355555 |       12
+(20 rows)
+
+
+/*
+ * PREGUNTA 5
+ *
+ *
+ *
+ *
+ *
+ */
+ 
+ CREATE OR REPLACE FUNCTION maxInscritos(
+ 	pf_codasig ASINATURA.codasig%TYPE
+ ) RETURNS NUMERIC AS $$
+DECLARE
+	asignadosTrimAnio CURSOR(
+		pc_codasig SECCION.codasig%TYPE
+	) IS (
+		SELECT COUNT(carnet) as cantidad
+		FROM CURSA
+		WHERE pc_codasig = codasig
+		GROUP BY codasig,trimestre, anio
+	);		
+	val_max NUMERIC := 0;
+BEGIN
+	FOR nroInscritos IN asignadosTrimAnio(pf_codasig) LOOP
+		IF (val_max < nroInscritos.cantidad) THEN
+			val_max := nroInscritos.cantidad;
+		END IF;
+	END LOOP;
+	RETURN val_max;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT 
+	maxInscritos('MA0003') AS MM0003, 
+	maxInscritos('FI0003') AS FI0003, 
+	maxInscritos('MM0001') AS MM0001;
+ mm0003 | fi0003 | mm0001 
+--------+--------+--------
+      5 |      7 |      7
+(1 row)
+
+/*
+ * PREGUNTA 6
+ *
+ *
+ *
+ *
+ *
+ */
+ 
+ //Primero creo la función que retorna un trigger.
+ CREATE OR REPLACE FUNCTION recalcularCreditos(
+ ) RETURNS trigger AS $recalcularCreditos$
+ BEGIN
+ 	UPDATE ESTUDIANTE e
+ 	SET creditosaprob = creditosaprob + (
+ 		SELECT a.creditos
+ 		FROM ASIGNATURA a
+ 		WHERE
+ 			a.codasig = NEW.codasig
+ 		)
+ 	WHERE
+ 		e.carnet = NEW.carnet
+ 	;
+ 	RETURN NEW;
+ END;
+ $recalcularCreditos$ LANGUAGE plpgsql;
+ 
+ CREATE trigger recalculcarCreditos
+ AFTER INSERT OR UPDATE OF estado,nota ON CURSA
+ FOR EACH ROW
+ WHEN (NEW.estado = 'APROBADO' AND NEW.nota >= 3)
+ EXECUTE PROCEDURE recalcularCreditos();
+ 
+ 
+ SELECT carnet,creditosaprob FROM estudiante WHERE carnet LIKE '9%' ORDER BY carnet;
+ UPDATE cursa SET estado='APROBADO', nota = 3 WHERE estado='INSCRITO' AND anio = 2014:
+ SELECT carnet,creditosaprob FROM estudiante WHERE carnet LIKE '9%' ORDER BY carnet;	

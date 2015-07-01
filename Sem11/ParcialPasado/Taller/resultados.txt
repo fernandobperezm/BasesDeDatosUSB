@@ -1,0 +1,219 @@
+/*
+ *  Archivo: Taller 2.sql
+ *
+ *  Autores: 
+ *          Prof. Armando RUP�REZ
+ *          Prof. Leonid TINEO
+ *
+ *  Fecha: 09 de marzo de 2015
+ */
+
+/*
+    A.  Actualizar el atributo creditosaprob de la tabla estudiante, 
+        para almacenar la cantidad actual de cr�ditos aprobados 
+        seg�n las materias cursadas. 
+        Considere una materia aprobada seg�n la nota obtenida (>=3) y 
+        no a trav�s del estado.  
+*/
+UPDATE estudiante AS e
+SET creditosaprob = (
+	SELECT 
+		SUM(creditos)
+	FROM 
+		cursa AS c, asignatura AS a
+	WHERE
+		c.carnet = e.carnet AND 
+		c.codasig = a.codasig AND
+		c.nota > 2
+	)
+;
+
+/*
+    Para mostrar que se hizo bien la operaci�n,
+    luego de la misma ejecute la consulta:
+*/
+SELECT creditosaprob, COUNT(*) FROM estudiante 
+GROUP BY creditosaprob ORDER BY creditosaprob;
+
+/*  
+    B.	Obtener el nombre del departamento y nombre de la asignatura 
+    tales que no todos los profesores del departamento la hayan han dictado.
+*/
+SELECT 
+	d.nomdpto, a.nomasig 
+FROM
+	departamento AS d, asignatura AS a
+WHERE
+	d.iddepartamento = a.iddepartamento AND
+EXISTS (
+	SELECT 
+		p.ciprof
+	FROM
+		profesor AS p
+	WHERE
+		p.iddepartamento = d.iddepartamento AND 
+	NOT EXISTS (
+		SELECT 
+			p.ciprof
+		FROM
+			dicta AS di
+		WHERE
+			di.ciprof = p.ciprof AND 
+			di.codasig = a.codasig
+		)
+	)
+;	
+
+/*
+    C.  Se requiere la creaci�n de una vista datos_inscripcion que calcule
+        para cada estudiante en cada trimestre, 
+        la cantidad de cr�ditos y el total de horas de clase a la semana
+        que cursa o curs�. 
+        Los atributos de vista ser�an carnet, a�o, trimestre,
+        cantidad de creditos y total de horas de clase semanales. 	
+        Parta del hecho que un estudiante cursa o curs� una materia si 
+        su estado es diferente a 'RECHAZADO' y a 'RETIRADO'.
+*/  
+CREATE OR REPLACE VIEW
+datos_inscripcion AS (
+	SELECT
+		e.carnet, c.anio, c.trimestre, 
+        SUM(a.creditos) AS creditos, 
+        SUM(a.horassem) AS horas
+	FROM
+		estudiante AS e, cursa AS c, asignatura AS a 
+	WHERE
+		e.carnet = c.carnet AND
+		c.codasig = a.codasig AND
+		c.estado NOT IN ('RECHAZADO','RETIRADO')
+	GROUP BY
+		e.carnet, c.anio, c.trimestre
+	)
+;
+
+/*
+    Para mostrar que se hizo bien la operaci�n, 
+    luego de la misma ejecute la consulta: 
+*/
+SELECT * FROM datos_inscripcion WHERE carnet LIKE '10%';
+
+/*
+    D.  Seleccione para cada trimestre, el estudiante con 
+        m�s horas semanales de clase. 
+        Utilice para ello la vista creada en el ejercicio anterior. 
+        Utilice el operador IN con una consulta anidada no correlacionada. 
+        Incluya el A�o, Trimestre, Nombre de la Carrera, Nombres, Apellidos, 
+        Carnet del Estudiante y el total de Horas de Clase Semanales. 
+        Ordene el resultado por A�o y trimestre.
+*/
+SELECT 
+	i.anio, i.trimestre, c.nombre, e.nombres, e.apellidos, e.carnet, i.horas
+FROM 
+	carrera AS c, datos_inscripcion AS i, estudiante AS e
+WHERE 
+	c.idcarrera = e.idcarrera AND
+	i.carnet = e.carnet AND
+	(i.anio, i.trimestre, i.horas) IN (
+		SELECT 
+			i_max.anio, i_max.trimestre, MAX(i_max.horas)
+		FROM 
+			datos_inscripcion AS i_max 
+		GROUP BY
+			i_max.anio, i_max.trimestre 
+	)
+ORDER BY i.anio, i.trimestre	
+;	
+
+/*
+    E.	Implemente la funci�n maxInscritos, 
+        la cual a partir de un c�digo de asignatura, retorna 
+        el m�ximo n�mero de estudiantes asignados a una secci�n 
+        de cualquier trimestre y a�o, 
+        sin importar el estado de la inscripci�n del estudiante. 
+        La funci�n no puede hacer uso de vistas ni consultas anidadas.
+*/
+CREATE FUNCTION maxInscritos (
+    codasigfun asignatura.codasig%TYPE
+) RETURNS NUMERIC AS $$
+DECLARE 
+	inscritosXseccion CURSOR (
+        codasigcur asignatura.codasig%TYPE
+    ) IS (
+        SELECT 
+            c.codasig, c.trimestre, c.anio, c.nroseccion, COUNT(*) AS cantIns
+        FROM
+            cursa AS c
+        WHERE
+            c.codasig = codasigcur 
+        GROUP BY
+            c.codasig, c.trimestre, c.anio, c.nroseccion
+    );
+	maxIns NUMERIC :=0;
+BEGIN
+	FOR sec IN inscritosXseccion(codasigfun) LOOP
+		IF(sec.cantIns > maxIns) THEN
+			maxIns:=sec.cantIns;
+		END IF;
+	END LOOP;
+	RETURN maxIns;
+END;
+$$ LANGUAGE plpgsql;
+
+/*
+    Para mostrar que se hizo bien la funci�n, ejecute la consulta
+*/
+SELECT
+    maxInscritos('MA0003') AS MM0003,
+    maxInscritos('FI0003') AS FI0003,
+    maxInscritos('MM0001') AS MM0001
+;
+
+/*
+    F.	Se requiere implementar la siguiente regla: 
+    
+        "Cuando un estudiante aprueba una asignatura, 
+        el atributo cr�ditos aprobados debe aumentar 
+        en la cantidad de cr�ditos que posee la asignatura que aprob�" 
+        
+    N�tese que las aprobaciones de una asignatura por parte de un estudiante 
+    s�lo pueden producirse por la actualizaci�n de una asignatura ya inscrita
+    modificando el valor del campo estado a 'APROBADO' y obteniendo una nota 
+    mayor o igual a 3. 
+*/
+CREATE OR REPLACE FUNCTION actualizarEstudiantes(
+) RETURNS TRIGGER AS $actualizarEstudiantes$
+BEGIN
+    UPDATE  
+		estudiante  
+    SET
+		creditosaprob = creditosaprob + (
+			SELECT 
+				a.creditos
+			FROM
+				asignatura AS a
+			WHERE
+				a.codasig = NEW.codasig 
+		)
+    WHERE
+		carnet = NEW.carnet;
+	RETURN NEW;	
+END
+$actualizarEstudiantes$ LANGUAGE plpgsql;	
+
+CREATE TRIGGER actualizarEstudiantes 
+AFTER UPDATE OF estado, nota ON cursa 
+FOR EACH ROW 
+WHEN (NEW.estado='APROBADO' AND NEW.nota>=3)
+EXECUTE PROCEDURE actualizarEstudiantes();
+
+/*
+    Para probar esta regla, ejecute las instrucciones
+*/   
+SELECT carnet, creditosaprob FROM estudiante 
+WHERE carnet LIKE '9%' ORDER BY carnet;
+
+UPDATE cursa SET estado='APROBADO', nota=3 
+WHERE estado='INSCRITO' AND anio=2014;
+
+SELECT carnet, creditosaprob FROM estudiante 
+WHERE carnet LIKE '9%' ORDER BY carnet;

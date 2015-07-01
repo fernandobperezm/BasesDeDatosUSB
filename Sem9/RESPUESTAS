@@ -1,0 +1,276 @@
+EJERCICIO 1
+	PREGUNTA 2.
+		SELECT 
+			a.codasig, a.nomasig, a.tipo                             
+		FROM 
+			ASIGNATURA AS a, CURSA AS c, ESTUDIANTE AS e 
+		WHERE 
+			a.codasig = c.codasig AND 
+			e.carnet = c.carnet AND 
+			c.trimestre = 'SEPTIEMBRE' AND 
+			c.anio = 2014                                                            
+		GROUP BY 
+			a.codasig, a.nomasig, a.tipo                                           
+		HAVING 
+			AVG(e.indice) > 3.5
+		;
+
+		 codasig |            nomasig            |    tipo     
+		---------+-------------------------------+-------------
+		 AA0004  | El Modernismo                 | Teoria
+		 MM0001  | Introduccion a la Computacion | Teoria
+		 AA0001  | Introduccion al Arte          | Teoria
+		 AA0002  | Historia del Arte             | Teoria
+		 MM0003  | Laboratorio de Algoritmos I   | Laboratorio
+		 MM0004  | Laboratorio de Redes I        | Laboratorio
+		 AA0003  | Analisis de la Pintura        | Teoria
+		 MM0002  | Computacion I                 | Teoria
+		(8 rows)
+
+	PREGUNTA 3
+		SELECT 
+			c.codasig, MIN(c.nota), MAX(c.nota)                      
+		FROM 
+			ESTUDIANTE AS e, CURSA AS c, CARRERA AS t
+		WHERE 
+			e.carnet = c.carnet AND 
+			e.idcarrera = t.idcarrera AND 
+			t.nombre = 'Ing. Mecanica'  AND
+			c.trimestre = 'SEPTIEMBRE' AND
+			c.anio = 2014
+		GROUP BY 
+			c.codasig
+		;
+
+		 codasig | min | max 
+		---------+-----+-----
+		 MM0001  |   2 |   4
+		 AA0001  |   4 |   5
+		(2 rows)
+
+
+	PREGUNTA 4
+		SELECT 
+			idcarrera, carnet, nombres, apellidos                   
+		FROM 
+			ESTUDIANTE                                                                 
+		EXCEPT                                                                          
+			SELECT 
+				e1.idcarrera, e1.carnet, e1.nombres, e1.apellidos                        
+			FROM 
+				ESTUDIANTE AS e1, ESTUDIANTE AS e2
+			WHERE 
+				e1.idcarrera = e2.idcarrera AND 
+				e1.indice > e2.indice
+		;
+
+		 idcarrera | carnet  | nombres | apellidos 
+		-----------+---------+---------+-----------
+				 9 | 9890123 | Carmen  | Lopez
+				10 | 0022333 | Andres  | Sanchez
+				 8 | 9834567 | Manuel  | Garcia
+		(3 rows)
+
+	PREGUNTA 5
+		SELECT 
+			p.ciprof, p.nombres, p.apellidos
+		FROM 
+			PROFESOR AS p
+		EXCEPT
+			SELECT 
+				p2.ciprof, p2.nombres, p2.apellidos
+			FROM 
+				PROFESOR AS p2, DICTA AS d, ASIGNATURA AS a 
+			WHERE 
+				d.ciprof = p2.ciprof AND 
+				a.codasig = d.codasig AND 
+				a.tipo = 'Teoria'
+		;  
+		
+		  ciprof  | nombres | apellidos 
+	    ----------+---------+-----------
+	     87654321 | Pablo   | Suarez
+	    (1 row)
+	    
+	PREGUNTA 6
+		SELECT 
+			e.carnet, e.nombres, e.apellidos
+		FROM 
+			ESTUDIANTE AS e, CURSA AS c, ASIGNATURA AS a 
+		WHERE 
+			e.carnet = c.carnet AND 
+			a.codasig = c.codasig AND 
+			a.nomasig = 'Analisis de la Pintura'
+		;
+		 carnet  | nombres | apellidos 
+		---------+---------+-----------
+		 9711111 | Gabriel | Millan
+		 9722222 | Luis    | Gomez
+		 9833333 | Jose    | Perez
+		 9712345 | David   | Pino
+		 9723456 | Domingo | Noriega
+		 9834567 | Manuel  | Garcia
+		(6 rows)
+
+EJERCICIO 2
+	PREGUNTA 1
+		SELECT DISTINCT c.nombre
+		FROM CARRERA AS c, CURSA AS k, ESTUDIANTE AS e
+		WHERE 
+			c.idcarrera = e.idcarrera AND 
+			e.carnet = k.carnet                         
+		GROUP BY 
+			k.carnet, k.idcarrera, c.nombre  
+		HAVING 
+			AVG(k.nota) >= 3.5
+		;
+		
+			  nombre      
+		------------------
+		 Ing. Electronica
+		 Ing. Mecanica
+		 Ing. Computacion
+		(3 rows)
+	
+	PREGUNTA 2
+		SELECT 
+			e.carnet, e.apellidos, e.nombres
+		FROM 
+			ESTUDIANTE AS e, CURSA AS c, ASIGNATURA AS a 
+		WHERE 
+			e.carnet = c.carnet AND 
+			a.codasig = c.codasig AND 
+			c.trimestre = 'SEPTIEMBRE' AND 
+			c.anio = 2014 
+		GROUP BY 
+			e.carnet, e.apellidos, e.nombres
+		HAVING 
+			SUM(a.creditos) BETWEEN 10 AND 12
+		;
+		
+		 carnet  | apellidos | nombres  
+		---------+-----------+----------
+		 9789012 | Salinas   | Elvira
+		 9788888 | Salazar   | Gustavo
+		 9899999 | Saad      | Gabriela
+		 9890123 | Lopez     | Carmen
+		 9778901 | Peralto   | Ricardo
+		(5 rows)
+
+	PREGUNTA 3
+		SELECT 
+			a.nomasig, MIN(c.nota), MAX (c.nota)                     
+		FROM 
+			ASIGNATURA AS a, CURSA AS c, DEPARTAMENTO AS d                             
+		WHERE 
+			c.codasig = a.codasig AND 
+			a.iddepartamento = d.iddepartamento AND 
+			c.trimestre = 'SEPTIEMBRE' AND 
+			c.anio = 2014 AND 
+			d.nomdpto = 'Departamento de Sociales' 
+		GROUP BY 
+			a.nomasig
+		;
+				nomasig         | min | max 
+		------------------------+-----+-----
+		 Analisis de la Pintura |   1 |   5
+		 Introduccion al Arte   |   2 |   5
+		 Historia del Arte      |   1 |   5
+		 El Modernismo          |   1 |   4
+		(4 rows)
+		
+	PREGUNTA 4
+		SELECT 
+			e.idcarrera, e.carnet, e.nombres, e.apellidos
+		FROM 
+			ESTUDIANTE AS e
+		EXCEPT
+			SELECT 
+				e1.idcarrera, e1.carnet, e1.nombres, e1.apellidos 
+			FROM 
+				ESTUDIANTE AS e1, ESTUDIANTE AS e2
+			WHERE 
+				e1.idcarrera = e2.idcarrera AND 
+				e1.indice > e2.indice
+		;
+				
+		 idcarrera | carnet  | nombres | apellidos 
+		-----------+---------+---------+-----------
+				 9 | 9890123 | Carmen  | Lopez
+				10 | 0022333 | Andres  | Sanchez
+				 8 | 9834567 | Manuel  | Garcia
+		(3 rows)
+		
+	PREGUNTA 5
+		SELECT 
+			p.ciprof, p.nombres, p.apellidos                         
+		FROM 
+			PROFESOR AS p, ASIGNATURA AS a, DICTA AS d                                 
+		WHERE 
+			a.codasig = d.codasig AND 
+			d.ciprof = p.ciprof AND 
+			a.tipo = 'Laboratorio'
+		;
+		
+		  ciprof  | nombres | apellidos 
+		----------+---------+-----------
+		 12345678 | Pedro   | Perez
+		 11122333 | Marco   | Torres
+		 87654321 | Pablo   | Suarez
+		(3 rows)
+	
+	PREGUNTA 6
+		SELECT 
+			e.carnet, e.nombres, e.apellidos                         
+		FROM 
+			ESTUDIANTE AS e 
+		EXCEPT
+			SELECT 
+				e1.carnet, e1.nombres, e1.apellidos                                      
+			FROM 
+				ESTUDIANTE AS e1, CURSA AS c, ASIGNATURA AS a                              
+			WHERE 
+				e1.carnet = c.carnet AND 
+				a.codasig = c.codasig AND 
+				a.nomasig = 'Analisis de la Pintura'
+		;
+		
+		 carnet  | nombres  | apellidos 
+		---------+----------+-----------
+		 9788888 | Gustavo  | Salazar
+		 0088999 | Enrique  | Valles
+		 0033444 | Camilo   | Ponce
+		 0067890 | Marina   | Vidal
+		 0077889 | Alberto  | Beltran
+		 9789012 | Elvira   | Salinas
+		 9944444 | Irene    | Rivas
+		 9777777 | Rafael   | Millan
+		 0022333 | Andres   | Sanchez
+		 0055555 | Marta    | Sanchez
+		 9901236 | Irma     | Alfonso
+		 0066666 | Miguel   | Rojas
+		 9911122 | Santiago | Cortes
+		 9899999 | Gabriela | Saad
+		 9890123 | Carmen   | Lopez
+		 0056789 | Ramon    | Diaz
+		 9945678 | Ignacio  | Rovas
+		 9778901 | Ricardo  | Peralto
+		(18 rows)
+
+
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+EJERCICIO 3
+	PREGUNTA 1
+
+	
+	
+	
+	
+	
+	
+	
+
+		
+		

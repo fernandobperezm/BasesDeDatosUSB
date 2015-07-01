@@ -1,0 +1,80 @@
+
+UPDATE 24
+ momento | carnet  | indice 
+---------+---------+--------
+ despues | 9711111 |   1.80
+ despues | 9722222 |   3.20
+ despues | 9833333 |   3.25
+ despues | 9944444 |   3.00
+ despues | 0055555 |   5.00
+ despues | 0066666 |   2.00
+ despues | 9777777 |   1.96
+ despues | 9788888 |   2.87
+ despues | 9899999 |   3.80
+ despues | 9911122 |   1.00
+ despues | 0022333 |   3.00
+ despues | 0033444 |   5.00
+ despues | 9712345 |   2.13
+ despues | 9723456 |   2.86
+ despues | 9834567 |   2.00
+ despues | 9945678 |   1.00
+ despues | 0056789 |   2.50
+ despues | 0067890 |   3.50
+ despues | 9778901 |   2.14
+ despues | 9789012 |   3.21
+ despues | 9890123 |   1.83
+ despues | 9901236 |   2.50
+ despues | 0077889 |   2.00
+ despues | 0088999 |   3.00
+(24 rows)
+
+ carnet | apellidos | nombres | indice | idcarrera | nombre 
+--------+-----------+---------+--------+-----------+--------
+(0 rows)
+
+CREATE VIEW
+ codasig | cantidad 
+---------+----------
+ AA0001  |        5
+ MM0004  |        4
+ MM0003  |        3
+ AA0004  |        6
+ MM0002  |        6
+ AA0002  |        5
+ AA0003  |        4
+ MM0001  |        6
+(8 rows)
+
+ codasig | cantidad |            nomasig            |           nomdpto           
+---------+----------+-------------------------------+-----------------------------
+ AA0004  |        6 | El Modernismo                 | Departamento de Sociales
+ MM0001  |        6 | Introduccion a la Computacion | Departamento de Computacion
+ MM0002  |        6 | Computacion I                 | Departamento de Computacion
+(3 rows)
+
+CREATE FUNCTION
+ maxaprobados | maxaprobados | maxaprobados 
+--------------+--------------+--------------
+            3 |            2 |            2
+(1 row)
+
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE TRIGGER
+UPDATE 12
+ carnet  | codasig | trimestre  | anio | nroseccion |   estado   | causa | nota 
+---------+---------+------------+------+------------+------------+-------+------
+ 0066666 | AA0001  | ENERO      | 2011 |          1 | SIN EFECTO |       |    2
+ 9945678 | AA0001  | SEPTIEMBRE | 2011 |          2 | SIN EFECTO |       |    1
+ 9711111 | AA0002  | ABRIL      | 2011 |          1 | SIN EFECTO |       |    2
+ 9712345 | AA0003  | SEPTIEMBRE | 2011 |          1 | SIN EFECTO |       |    2
+ 9711111 | AA0004  | ABRIL      | 2011 |          1 | SIN EFECTO |       |    2
+ 9833333 | AA0004  | SEPTIEMBRE | 2011 |          1 | SIN EFECTO |       |    2
+ 0077889 | MM0001  | ABRIL      | 2011 |          2 | SIN EFECTO |       |    2
+ 9777777 | MM0001  | SEPTIEMBRE | 2011 |          1 | SIN EFECTO |       |    1
+ 9899999 | MM0002  | ENERO      | 2011 |          1 | SIN EFECTO |       |    2
+ 9890123 | MM0003  | SEPTIEMBRE | 2011 |          1 | SIN EFECTO |       |    2
+ 9789012 | MM0004  | ENERO      | 2011 |          1 | SIN EFECTO |       |    2
+ 9890123 | MM0004  | SEPTIEMBRE | 2011 |          1 | SIN EFECTO |       |    1
+(12 rows)
+
